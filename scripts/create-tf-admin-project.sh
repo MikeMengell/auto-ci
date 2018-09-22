@@ -3,7 +3,11 @@
 #Based on https://github.com/steinim/gcp-terraform-workshop
 
 #secrets are located in config.sh - encrypted using blackbox
-source config.sh
+#source ./config.sh
+#complete version which takes into account any bash source file location
+DIR="${BASH_SOURCE%/*}"
+if [[ ! -d "$DIR" ]]; then DIR="$PWD"; fi
+. "$DIR/config.sh"
 
 #Need to setup environment variables - or secrets one day.
 # export GOOGLE_REGION=europe-west3 # change this if you want to use a different region
@@ -19,6 +23,8 @@ source config.sh
 #This is where remote state will be configured
 
 projectid=${TF_ADMIN}-${RANDOM}
+
+export AUTO_CI_PROJECTID=${projectid}
 
 gcloud projects create ${projectid} \
   --organization ${TF_VAR_org_id} \
@@ -52,29 +58,46 @@ gcloud projects add-iam-policy-binding ${projectid} \
   --member serviceAccount:terraform@${projectid}.iam.gserviceaccount.com \
   --role roles/storage.admin
 
+gcloud projects add-iam-policy-binding ${projectid} \
+  --member serviceAccount:terraform@${projectid}.iam.gserviceaccount.com \
+  --role roles/container.admin
+
+gcloud projects add-iam-policy-binding ${projectid} \
+  --member serviceAccount:terraform@${projectid}.iam.gserviceaccount.com \
+  --role roles/iam.serviceAccountUser
+
 #Enable required services
 gcloud services enable cloudresourcemanager.googleapis.com
 gcloud services enable cloudbilling.googleapis.com
 gcloud services enable iam.googleapis.com
 gcloud services enable compute.googleapis.com
 gcloud services enable sqladmin.googleapis.com
+gcloud services enable container.googleapis.com
 
-#Create the storage bucket for remote state
-if [ ! -d terraform/tf-admin ]; then
-  mkdir -p terraform/test;
-fi
-cd terraform/tf-admin
+# #If a .terraform folder exists then delete as building a clean state
+# if [ ! -d .terraform ]; then
+#   rm -R .terraform;
+# fi
 
 gsutil mb -l ${TF_VAR_region} -p ${projectid} gs://${projectid}
 
-cat > backend.tf <<EOF
+cat > terraform/providers/kubernetes/backend.tf <<EOF
 terraform {
  backend "gcs" {
    bucket = "${projectid}"
-   prefix  = "terraform/state/test"
+   prefix  = "terraform/state/infra"
  }
 }
 EOF
 
-#Initialise the backend
-terraform init
+cat > terraform/providers/variables.tfvars <<EOF
+{
+    "name": "${projectid}",
+    "project_id": "${projectid}",
+    "org_id": "${TF_VAR_org_id}",
+    "billing_account": "${TF_VAR_billing_account}"
+}
+EOF
+
+#Encrypt the secrets
+blackbox_register_new_file terraform/providers/variables.tfvars
