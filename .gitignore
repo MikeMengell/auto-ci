@@ -2,3 +2,4 @@
 /keyrings/live/pubring.kbx~
 /keyrings/live/secring.gpg
 /scripts/config.sh
+/terraform/providers/variables.tfvars

@@ -1,1 +1,2 @@
 scripts/config.sh
+terraform/providers/variables.tfvars
