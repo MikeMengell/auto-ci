@@ -45,12 +45,6 @@ output "cluster_ca_certificate" {
   value = "${google_container_cluster.cluster.master_auth.0.cluster_ca_certificate}"
 }
 
-
-# resource "google_project" "my_project" {
-#   name = "My Project"
-
-#   #   project_id = "mike-project-${random_integer.suffix}"
-#   project_id = "${var.project-id}"
-#   org_id     = "50945569801"
-# }
-
+output "cluster_name" {
+  value = "${google_container_cluster.cluster.name}"
+}

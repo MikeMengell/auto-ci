@@ -30,6 +30,9 @@ gcloud projects create ${projectid} \
   --organization ${TF_VAR_org_id} \
   --set-as-default
 
+#Set default gcloud project
+gcloud config set project ${projectid}
+
 #Need to enable beta billing components
 # gcloud beta services enable billing
 
@@ -99,5 +102,10 @@ cat > terraform/providers/variables.tfvars <<EOF
 }
 EOF
 
-#Encrypt the secrets
-blackbox_register_new_file terraform/providers/variables.tfvars
+#Encrypt the secrets if variables.tfvars doesn't already exist
+if blackbox_list_files | grep -q "terraform/providers/variables.tfvars"; then
+  echo "variables.tfvars exists in blackbox"
+else
+  echo "not found"
+  blackbox_register_new_file terraform/providers/variables.tfvars
+fi

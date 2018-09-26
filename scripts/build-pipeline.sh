@@ -16,3 +16,9 @@ terraform import google_project.auto-ci $AUTO_CI_PROJECTID
 terraform plan -out=tfplan -input=false
 
 terraform apply -input=false tfplan
+
+#Add new k8s as default to kubectl
+
+#Install service account for helm
+
+#Init helm

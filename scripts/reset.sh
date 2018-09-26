@@ -6,10 +6,8 @@ rm -R terraform/providers/kubernetes/.terraform
 
 rm terraform/providers/kubernetes/backend.tf
 
-rm terraform/providers/kubernetes/project.tf
-
 rm terraform/providers/kubernetes/tfplan
 
 rm terraform/providers/variables.tfvars
 
-rm terraform/providers/variables.tfvars.gpg
+blackbox_deregister_file terraform/providers/variables.tfvars
