@@ -93,9 +93,9 @@ terraform {
 }
 EOF
 
-cat > terraform/providers/variables.tfvars <<EOF
+cat > terraform/providers/kubernetes/variables.tfvars <<EOF
 {
-    "name": "${projectid}",
+    "project_name": "${projectid}",
     "project_id": "${projectid}",
     "org_id": "${TF_VAR_org_id}",
     "billing_account": "${TF_VAR_billing_account}"
@@ -103,9 +103,9 @@ cat > terraform/providers/variables.tfvars <<EOF
 EOF
 
 #Encrypt the secrets if variables.tfvars doesn't already exist
-if blackbox_list_files | grep -q "terraform/providers/variables.tfvars"; then
+if blackbox_list_files | grep -q "terraform/providers/kubernetes/variables.tfvars"; then
   echo "variables.tfvars exists in blackbox"
 else
   echo "not found"
-  blackbox_register_new_file terraform/providers/variables.tfvars
+  blackbox_register_new_file terraform/providers/kubernetes/variables.tfvars
 fi
