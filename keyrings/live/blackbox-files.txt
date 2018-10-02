@@ -1,3 +1,2 @@
 scripts/config.sh
-terraform/providers/kubernetes/variables.tfvars
 terraform/providers/variables.tfvars
